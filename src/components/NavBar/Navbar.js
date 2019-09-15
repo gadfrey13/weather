@@ -71,7 +71,7 @@ const Navbar = ({onSearch}) => {
       <AppBar className={classes.nav}  position="static">
         <Toolbar>
           <Typography variant="h6" className={classes.title}>
-            <Link className={classes.link} to="/">Weather App</Link>
+            <Link className={classes.link} to="/weather">Weather App</Link>
           </Typography>
           <div className={classes.search}>
             <div className={classes.searchIcon}>

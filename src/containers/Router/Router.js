@@ -44,7 +44,7 @@ class RouterApp extends Component {
           <Navbar onSearch={this.onSearch}></Navbar>
           <Switch>
             <Route
-              path="/"
+              path="/weather"
               exact
               component={props => (
                 <App city={this.state.city} country={this.state.country} />
