@@ -43,7 +43,7 @@ class App extends Component {
   // Parameter: property, type
   getData = (property,type="weather") => {
     const {country,city} = this.state;
-    fetch(`http://api.openweathermap.org/data/2.5/${type}?q=${city},${country}&appid=${API_KEY}&units=imperial`)
+    fetch(`https://cors-anywhere.herokuapp.com/http://api.openweathermap.org/data/2.5/${type}?q=${city},${country}&appid=${API_KEY}&units=imperial`)
     .then(res => {
       return res.json();
     })
