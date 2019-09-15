@@ -10,7 +10,7 @@ import ErrorBoundary from '../../components/ErrorBoundary/ErrorBoundry';
 import { BrowserRouter as Router, Route, Link, Switch } from "react-router-dom";
 import SignIn from '../../components/Signin/SignIn';
 import Register from '../../components/Register/Register';
-
+//API Key
 const API_KEY = '640285b24dd4963e697ea5be67cf8165';
 
 class App extends Component {
