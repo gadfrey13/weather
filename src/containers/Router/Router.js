@@ -1,57 +1,94 @@
 import React, { Component } from "react";
-import { taggedTemplateExpression } from "@babel/types";
-import { BrowserRouter as Router, Route, Link, Switch } from "react-router-dom";
+import { connect } from "react-redux";
+import { BrowserRouter as Router, Route, Switch } from "react-router-dom";
 import SignIn from "../../components/Signin/SignIn";
 import Register from "../../components/Register/Register";
 import App from "../App/App";
 import Clouds from "../../components/Clouds/Clouds";
 import Navbar from "../../components/NavBar/Navbar";
-class RouterApp extends Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      country: "US",
-      city: "Stockton",
-      input: '',
-    };
-  }
+import ProtectedRoute from "../../components/ProtectedRoute/ProtectedRoute";
+import Profile from "../../components/Profile/Profile";
+import { setSearchField, loadUser, userLogIn } from "../../actions/actions";
 
-  onSearch = event => {
-    if (event.keyCode === 13 || event.which === 13) {
-      const split = event.target.value.toLowerCase().split(/[ ,]+/);
-      console.log("state",this.state.input);
-      if (split.length == 2) {
-        const city = split[0];
-        const country = split[1];
-        this.setState({ country: country, city: city });
-      }
+const mapStateToProps = state => {
+  return {
+    searchField: state.searchWeather.searchField,
+    user: state.loadUser.user,
+    isLogin: state.userLogIn.bol
+  };
+};
 
-      if (split.length == 3) {
-        const city = split[0] + " " + split[1];
-        const country = split[2];
-        this.setState({ country: country, city: city });
+const mapDispatchToProps = dispatch => {
+  return {
+    onSearch: event => {
+      if (event.keyCode === 13 || event.which === 13) {
+        dispatch(setSearchField(event.target.value));
+        event.target.value = "";
       }
-      event.target.value = "";
+    },
+    loadUserProfile: user => {
+      dispatch(loadUser(user));
+    },
+    logIn: bol => {
+      dispatch(userLogIn(bol));
     }
   };
+};
 
+class RouterApp extends Component {
 
   render() {
+    const {
+      searchField,
+      onSearch,
+      loadUserProfile,
+      logIn,
+      user,
+      isLogin
+    } = this.props;
+    const defaultWeatherLocation = "london,uk";
     return (
       <div>
         <Clouds />
         <Router>
-          <Navbar onSearch={this.onSearch}></Navbar>
+          <Navbar onSearch={onSearch} logIn={logIn} isLogin={isLogin}></Navbar>
           <Switch>
             <Route
               path="/weather"
               exact
               component={props => (
-                <App city={this.state.city} country={this.state.country} />
+                <App searchField={searchField || defaultWeatherLocation} />
               )}
             />
-            <Route path="/register" exact component={Register} />
-            <Route path="/login" exact component={SignIn} />
+            <Route
+              path="/register"
+              exact
+              component={props => (
+                <Register
+                  loadUserProfile={loadUserProfile}
+                  logIn={logIn}
+                  {...props}
+                />
+              )}
+            />
+            <Route
+              path="/login"
+              exact
+              component={props => (
+                <SignIn
+                  loadUserProfile={loadUserProfile}
+                  logIn={logIn}
+                  {...props}
+                />
+              )}
+            />
+            <ProtectedRoute
+              path="/profile"
+              exact
+              component={Profile}
+              user={user}
+              isLogin={isLogin}
+            />
           </Switch>
         </Router>
       </div>
@@ -59,4 +96,7 @@ class RouterApp extends Component {
   }
 }
 
-export default RouterApp;
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(RouterApp);

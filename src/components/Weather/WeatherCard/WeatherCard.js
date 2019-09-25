@@ -1,14 +1,12 @@
-import React from "react";
+import React, {useState} from "react";
 import { makeStyles } from "@material-ui/core/styles";
 import Card from "@material-ui/core/Card";
-import CardActions from "@material-ui/core/CardActions";
 import CardContent from "@material-ui/core/CardContent";
-import Button from "@material-ui/core/Button";
 import Typography from "@material-ui/core/Typography";
 import Grid from "@material-ui/core/Grid";
 import CardHeader from "@material-ui/core/CardHeader";
 import CardMedia from "@material-ui/core/CardMedia";
-import Countries from "../../Countries/Countries";
+import Button from "@material-ui/core/Button";
 
 const useStyles = makeStyles({
   card: {
@@ -27,29 +25,51 @@ const useStyles = makeStyles({
   margin: {
     marginTop: "50px",
     marginBottom: "25px"
+  },
+  bt: {
+    margin: "0px 50px 10px"
   }
 });
 
-const getCountryName = countryCode => {
-  const name = countryCode.toUpperCase();
-  if (Countries.hasOwnProperty(name)) {
-    return Countries[name];
-  } else {
-    return countryCode;
+const WeatherCard = ({
+  city,
+  country,
+  description,
+  icon,
+  windSpeed,
+  temp,
+  humidity,
+  foreCast,
+  isLogin,
+  saveWeather,
+  deleteWeather,
+  index,
+  save
+}) => {
+
+  const [isSaved, setWeatherCardSave] = useState(false);
+
+
+  const saveWeatherCard = (event) => {
+    saveWeather(event)
+    setWeatherCardSave(true)
   }
-};
 
+  const deleteWeatherCard = (event) => {
+    deleteWeather(event);
+  }
 
-const WeatherCard = ({city,country,description,icon,windSpeed,temp,humidity,foreCast}) => {
-  
   const classes = useStyles();
   const arrayDays = foreCast.map((day, i) => {
     return (
       <Grid className={`${classes.tc}`} key={i} item xs={2}>
         <Typography component="p">{day.date}</Typography>
-        <br/>
+        <br />
         <Typography component="p">{day.maxTemp}f</Typography>
-         <img src={`http://openweathermap.org/img/wn/${day.icon}.png`} alt="icon"/>
+        <img
+          src={`http://openweathermap.org/img/wn/${day.icon}.png`}
+          alt="icon"
+        />
         <Typography component="p">{day.minTemp}f</Typography>
       </Grid>
     );
@@ -66,7 +86,7 @@ const WeatherCard = ({city,country,description,icon,windSpeed,temp,humidity,fore
             <h4>
               {description}{" "}
               <span>
-                 Wind {windSpeed}m/h <span>Huminity {humidity}</span>
+                Wind {windSpeed}m/h <span>Huminity {humidity}</span>
               </span>
             </h4>
           </CardContent>
@@ -87,6 +107,17 @@ const WeatherCard = ({city,country,description,icon,windSpeed,temp,humidity,fore
             {arrayDays}
           </Grid>
         </Grid>
+        { isLogin ? 
+          <Grid container>
+            <Grid item xs={6} sm={6}>
+              <Button className={classes.bt} onClick={deleteWeatherCard} value={`${index}-${city},${country}`}>Delete</Button>
+            </Grid>
+            {(isSaved || save) ?  <Grid item xs={6} sm={6}></Grid> :  <Grid item xs={6} sm={6}>
+              <Button className={classes.bt} onClick={saveWeatherCard} value={`${city},${country}`}>Save</Button>
+            </Grid> }
+
+          </Grid> : <div></div>
+        }
       </Grid>
     </Card>
   );

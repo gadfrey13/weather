@@ -1,5 +1,3 @@
-import React from 'react';
-
 const Countries = {
     'AF' : 'Afghanistan',
     'AX' : 'Aland Islands',

@@ -1,7 +1,7 @@
 import React from 'react';
 import WeatherCard from '../WeatherCard/WeatherCard';
 import './WeatherContainer.css';
-const WeatherContainer = ({weatherData,foreCastData}) => {
+const WeatherContainer = ({weatherData,foreCastData, isLogin, saveWeatherProfile, deleteWeatherProfile,index,save}) => {
 
     //Get All the Dates
     const dateKey = foreCastData.map((data) => {
@@ -20,8 +20,14 @@ const WeatherContainer = ({weatherData,foreCastData}) => {
             return date === dateForeCast;
         })
     })
+
+    const saveWeather = (event) => {
+        saveWeatherProfile(event);
+    }
     
-  
+    const deleteWeather = (event) => {
+        deleteWeatherProfile(event);
+    }
     //Go to each group array and get its min temp and max temp. get the date. icon
     const foreCast = groupForeCastByDate.map(groupforecast => {
         let min = 100000;
@@ -48,7 +54,7 @@ const WeatherContainer = ({weatherData,foreCastData}) => {
             icon: icon
         }
     })
-    console.log("weather container");
+   
    
 
     return ( 
@@ -63,6 +69,11 @@ const WeatherContainer = ({weatherData,foreCastData}) => {
         temp={weatherData.main.temp}
         humidity={weatherData.main.humidity}
         foreCast={foreCast}
+        isLogin={isLogin}
+        saveWeather={saveWeather}
+        deleteWeather={deleteWeather}
+        index={index}
+        save={save}
         />
     </div> 
     )

@@ -1,58 +1,133 @@
-import React from 'react';
-import Avatar from '@material-ui/core/Avatar';
-import Button from '@material-ui/core/Button';
-import CssBaseline from '@material-ui/core/CssBaseline';
-import TextField from '@material-ui/core/TextField';
-import FormControlLabel from '@material-ui/core/FormControlLabel';
-import Checkbox from '@material-ui/core/Checkbox';
-import Link from '@material-ui/core/Link';
-import Grid from '@material-ui/core/Grid';
-import Box from '@material-ui/core/Box';
-import LockOutlinedIcon from '@material-ui/icons/LockOutlined';
-import Typography from '@material-ui/core/Typography';
-import { makeStyles } from '@material-ui/core/styles';
-import Container from '@material-ui/core/Container';
+import React, { useState } from "react";
+import Avatar from "@material-ui/core/Avatar";
+import Button from "@material-ui/core/Button";
+import CssBaseline from "@material-ui/core/CssBaseline";
+import TextField from "@material-ui/core/TextField";
+import Grid from "@material-ui/core/Grid";
+import Box from "@material-ui/core/Box";
+import LockOutlinedIcon from "@material-ui/icons/LockOutlined";
+import Typography from "@material-ui/core/Typography";
+import { makeStyles } from "@material-ui/core/styles";
+import Container from "@material-ui/core/Container";
+import { Link } from "react-router-dom";
+
 
 function Copyright() {
   return (
     <Typography variant="body2" color="textSecondary" align="center">
-      {'Copyright © '}
+      {"Copyright © "}
       <Link color="inherit" href="https://material-ui.com/">
         Your Website
-      </Link>{' '}
+      </Link>{" "}
       {new Date().getFullYear()}
-      {'.'}
+      {"."}
     </Typography>
   );
 }
 
+
+
 const useStyles = makeStyles(theme => ({
-  '@global': {
+  "@global": {
     body: {
-      backgroundColor: theme.palette.common.white,
-    },
+      backgroundColor: theme.palette.common.white
+    }
   },
   paper: {
     marginTop: theme.spacing(8),
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'center',
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "center"
   },
   avatar: {
     margin: theme.spacing(1),
-    backgroundColor: theme.palette.secondary.main,
+    backgroundColor: theme.palette.secondary.main
   },
   form: {
-    width: '100%', // Fix IE 11 issue.
-    marginTop: theme.spacing(3),
+    width: "100%", // Fix IE 11 issue.
+    marginTop: theme.spacing(3)
   },
   submit: {
-    margin: theme.spacing(3, 0, 2),
-  },
+    margin: theme.spacing(3, 0, 2)
+  }
 }));
 
-export default function Register() {
+const Register = props => {
   const classes = useStyles();
+
+  const [registerEmail, setRegisterEmail] = useState("");
+  const [registerPassword, setRegisterPassword] = useState("");
+  const [registerFirstName, setRegisterFirstName] = useState("");
+  const [registerLastName, setRegisterLastName] = useState("");
+  const [passWordValid, setPassWordValid] = useState(true);
+  const [emailValid, setEmailValid] = useState(false);
+
+  const onEmailChange = e => {
+    setRegisterEmail(e.target.value);
+  };
+
+  const onPassWordChange = e => {
+    setRegisterPassword(e.target.value);
+  };
+
+  const onFirstNameChange = e => {
+    setRegisterFirstName(e.target.value);
+  };
+
+  const onLastNameChange = e => {
+    setRegisterLastName(e.target.value);
+  };
+
+  const onSubmit = () => {
+    const firstName = registerFirstName.length > 0;
+    const lastName = registerLastName.length > 0;
+    const rePassword = /(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}/;
+    const reEmail = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/;
+    const passWord = registerPassword.match(rePassword);
+    const email = registerEmail.match(reEmail);
+    setPassWordValid(passWord);
+    setEmailValid(!email);
+    if (firstName && lastName && passWord && email) {
+      fetch('http://localhost:2500/register', {
+        method: 'post',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({
+          firstname: registerFirstName,
+          lastname: registerLastName,
+          email: registerEmail,
+          password: registerPassword
+        })
+      })
+      .then(response => response.json())
+      .then(user => {
+        if(user){
+          props.loadUserProfile(user);
+          props.logIn(true);
+          props.history.push("/profile"); 
+        }
+      }) 
+    }
+  };
+
+  const passwordFormat = () => {
+    return (
+      <div id="message">
+        <h3>Password must contain the following:</h3>
+        <p id="letter" className="invalid">
+          A <b>lowercase</b> letter
+        </p>
+        <p id="capital" className="invalid">
+          A <b>capital (uppercase)</b> letter
+        </p>
+        <p id="number" className="invalid">
+          A <b>number</b>
+        </p>
+        <p id="length" className="invalid">
+          Minimum <b>8 characters</b>
+        </p>
+      </div>
+    );
+  };
 
   return (
     <Container component="main" maxWidth="xs">
@@ -75,6 +150,7 @@ export default function Register() {
                 fullWidth
                 id="firstName"
                 label="First Name"
+                onChange={onFirstNameChange}
                 autoFocus
               />
             </Grid>
@@ -86,18 +162,22 @@ export default function Register() {
                 id="lastName"
                 label="Last Name"
                 name="lastName"
+                onChange={onLastNameChange}
                 autoComplete="lname"
               />
             </Grid>
             <Grid item xs={12}>
               <TextField
                 variant="outlined"
+                type="email"
                 required
                 fullWidth
                 id="email"
                 label="Email Address"
                 name="email"
+                onChange={onEmailChange}
                 autoComplete="email"
+                error={emailValid}
               />
             </Grid>
             <Grid item xs={12}>
@@ -109,28 +189,27 @@ export default function Register() {
                 label="Password"
                 type="password"
                 id="password"
+                onChange={onPassWordChange}
                 autoComplete="current-password"
+                error={!passWordValid}
               />
             </Grid>
             <Grid item xs={12}>
-              <FormControlLabel
-                control={<Checkbox value="allowExtraEmails" color="primary" />}
-                label="I want to receive inspiration, marketing promotions and updates via email."
-              />
+              {passWordValid ? <div></div> : passwordFormat()}
             </Grid>
           </Grid>
           <Button
-            type="submit"
             fullWidth
             variant="contained"
             color="primary"
             className={classes.submit}
+            onClick={onSubmit}
           >
-            Sign Up
+            Register
           </Button>
           <Grid container justify="flex-end">
             <Grid item>
-              <Link href="#" variant="body2">
+              <Link to="/login" variant="body2">
                 Already have an account? Sign in
               </Link>
             </Grid>
@@ -142,4 +221,6 @@ export default function Register() {
       </Box>
     </Container>
   );
-}
+};
+
+export default Register;
