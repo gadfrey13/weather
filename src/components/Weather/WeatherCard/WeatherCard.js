@@ -1,4 +1,4 @@
-import React, {useState} from "react";
+import React, { useState } from "react";
 import { makeStyles } from "@material-ui/core/styles";
 import Card from "@material-ui/core/Card";
 import CardContent from "@material-ui/core/CardContent";
@@ -46,18 +46,16 @@ const WeatherCard = ({
   index,
   save
 }) => {
+  const [isSaved, setWeatherCardSave] = useState(true);
 
-  const [isSaved, setWeatherCardSave] = useState(false);
+  const saveWeatherCard = event => {
+    saveWeather(event);
+    setWeatherCardSave(false);
+  };
 
-
-  const saveWeatherCard = (event) => {
-    saveWeather(event)
-    setWeatherCardSave(true)
-  }
-
-  const deleteWeatherCard = (event) => {
+  const deleteWeatherCard = event => {
     deleteWeather(event);
-  }
+  };
 
   const classes = useStyles();
   const arrayDays = foreCast.map((day, i) => {
@@ -74,7 +72,7 @@ const WeatherCard = ({
       </Grid>
     );
   });
-
+  const xor = ((!isSaved && save) || (isSaved && !save)) ? true : false;
   return (
     <Card raised justify="space-evenly" className={classes.card}>
       <Grid container spacing={0}>
@@ -107,17 +105,34 @@ const WeatherCard = ({
             {arrayDays}
           </Grid>
         </Grid>
-        { isLogin ? 
+        {isLogin ? (
           <Grid container>
             <Grid item xs={6} sm={6}>
-              <Button className={classes.bt} onClick={deleteWeatherCard} value={`${index}-${city},${country}`}>Delete</Button>
+              <Button
+                className={classes.bt}
+                onClick={deleteWeatherCard}
+                value={`${index}-${city},${country}`}
+              >
+                Delete
+              </Button>
             </Grid>
-            {(isSaved || save) ?  <Grid item xs={6} sm={6}></Grid> :  <Grid item xs={6} sm={6}>
-              <Button className={classes.bt} onClick={saveWeatherCard} value={`${city},${country}`}>Save</Button>
-            </Grid> }
-
-          </Grid> : <div></div>
-        }
+            { xor ? (
+              <Grid item xs={6} sm={6}>
+                <Button
+                  className={classes.bt}
+                  onClick={saveWeatherCard}
+                  value={`${city},${country}`}
+                >
+                  Save
+                </Button>
+              </Grid>
+            ) : (
+              <Grid item xs={6} sm={6}></Grid>
+            )}
+          </Grid>
+        ) : (
+          <div></div>
+        )}
       </Grid>
     </Card>
   );

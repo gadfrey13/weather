@@ -56,7 +56,7 @@ const WeatherContainer = ({weatherData,foreCastData, isLogin, saveWeatherProfile
     })
    
    
-
+    console.log("this is before", weatherData);
     return ( 
    
     <div className="weather">

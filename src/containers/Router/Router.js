@@ -8,7 +8,13 @@ import Clouds from "../../components/Clouds/Clouds";
 import Navbar from "../../components/NavBar/Navbar";
 import ProtectedRoute from "../../components/ProtectedRoute/ProtectedRoute";
 import Profile from "../../components/Profile/Profile";
-import { setSearchField, loadUser, userLogIn } from "../../actions/actions";
+import {
+  setSearchField,
+  loadUser,
+  userLogIn,
+  resetWeather,
+  resetWeatherForeCast
+} from "../../actions/actions";
 
 const mapStateToProps = state => {
   return {
@@ -31,12 +37,16 @@ const mapDispatchToProps = dispatch => {
     },
     logIn: bol => {
       dispatch(userLogIn(bol));
-    }
+    },
+    resetWeatherNav: () => dispatch(resetWeather()),
+    resetWeatherForeCastNav: () => dispatch(resetWeatherForeCast())
   };
 };
 
 class RouterApp extends Component {
-
+  componentDidMount(){
+    console.log("yea this is the route");
+  }
   render() {
     const {
       searchField,
@@ -44,7 +54,9 @@ class RouterApp extends Component {
       loadUserProfile,
       logIn,
       user,
-      isLogin
+      isLogin,
+      resetWeatherForeCastNav,
+      resetWeatherNav
     } = this.props;
     const defaultWeatherLocation = "london,uk";
     return (
@@ -78,6 +90,8 @@ class RouterApp extends Component {
                 <SignIn
                   loadUserProfile={loadUserProfile}
                   logIn={logIn}
+                  resetWeatherIn={resetWeatherNav}
+                  resetWeatherForeCastIn={resetWeatherForeCastNav}
                   {...props}
                 />
               )}

@@ -35,6 +35,7 @@ class App extends Component {
     if (split.length === 2) {
       const city = split[0];
       const country = split[1];
+      console.log("This is the app");
       this.props.onRequestWeatherForecast('forecast',city,country);
       this.props.onRequestWeather('weather',city,country);
    

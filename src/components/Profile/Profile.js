@@ -2,7 +2,11 @@ import React, { Component } from "react";
 import WeatherContainer from "../Weather/WeatherContainer/WeatherContainer";
 import { connect } from "react-redux";
 import Grid from "@material-ui/core/Grid";
-import { requestWeather, requestWeatherForecast } from "../../actions/actions";
+import {
+  requestWeather,
+  requestWeatherForecast,
+  requestWeatherAndForecast
+} from "../../actions/actions";
 import Loading from "../Loading/Loading";
 import { tsParenthesizedType } from "@babel/types";
 
@@ -11,27 +15,23 @@ const mapStateToProps = state => {
     searchField: state.searchWeather.searchField,
     user: state.loadUser.user,
     isLogin: state.userLogIn.bol,
-    weather: state.requestWeather.weather,
-    weatherForecast: state.requestWeatherForecast.weatherForecast,
-    isPendingWeather: state.requestWeather.isPendingWeather,
-    isPendingWeatherForecast:
-      state.requestWeatherForecast.isPendingWeatherForecast
+    isPendingWeatherAndForecast:
+      state.requestWeatherAndForecast.isPendingWeatherAndForecast,
+    data: state.requestWeatherAndForecast.data
   };
 };
 
 const mapDispatchToProps = dispatch => {
   return {
-    onRequestWeather: (type, city, country) =>
-      dispatch(requestWeather(type, city, country)),
-    onRequestWeatherForecast: (type, city, country) =>
-      dispatch(requestWeatherForecast(type, city, country))
+    onRequestWeatherAndForecast: (city, country) =>
+      dispatch(requestWeatherAndForecast(city, country))
   };
 };
 
 const initialState = {
-    allUserWeatherLoc: [],
-    savedWeather: [],
-}
+  allUserWeatherLoc: [],
+  savedWeather: []
+};
 
 class Profile extends Component {
   constructor() {
@@ -39,10 +39,10 @@ class Profile extends Component {
     this.state = initialState;
   }
 
+  //fix
   componentDidMount() {
     const { id } = this.props.user;
-    const { onRequestWeather, onRequestWeatherForecast } = this.props;
-
+    console.log("this is profile componentdidmount");
     fetch("http://localhost:2500/profile", {
       method: "post",
       headers: { "Content-Type": "application/json" },
@@ -53,95 +53,93 @@ class Profile extends Component {
       .then(response => response.json())
       .then(locs => {
         if (locs.length === 0) {
-          onRequestWeather("weather", "london", "uk");
-          onRequestWeatherForecast("forecast", "london", "uk");
-          this.addToWeatherLoc();
+          this.onRequestWeatherAndForecast("london", "uk");
         } else {
-          console.log("This is the user locations", locs);
-          for (let i = 0; i < locs.length; i++) {
-            const split = locs[i].weatherlocation.split(/[ ,]+/); //split the string by " " or ,
-            if (split.length === 2) {
-              const city = split[0];
-              const country = split[1];
-              const obj = {
-                loc: city+ "," + country,
-                save: locs[i].save
-              }
-              const newArr = this.state.savedWeather;
-              const newEnt = newArr.push(obj);
-                this.props.onRequestWeatherForecast("forecast", city, country);
-                this.props.onRequestWeather("weather", city, country);
-                this.addToWeatherLoc(locs[i].save);
-                this.setState({savedWeather: newEnt});     
-            }
-
-            if (split.length === 3) {
-              const city = split[0] + " " + split[1];
-              const country = split[2];
-              const obj = {
-                loc: city+ "," + country,
-                save: locs[i].save
-              }
-              const newArr = this.state.savedWeather;
-              const newEnt = newArr.push(obj);
-              this.props.onRequestWeatherForecast("forecast", city, country);
-              this.props.onRequestWeather("weather", city, country);
-              this.addToWeatherLoc(locs[i].save);
-              this.setState({savedWeather: newEnt});
-            }
-          }
+          this.run(locs);
         }
       })
       .catch(err => console.log(err));
-
-    
   }
 
+  run = async locs => {
+    console.log("locs", locs);
+    for (let i = 0; i < locs.length; i++) {
+      let res = await this.getWeather(locs[i]);
+      res.push(locs[i].save);
+      let obj = {
+        weather: res[0],
+        forecast: res[1],
+        save: res[2]
+      };
+      let cur = [...this.state.allUserWeatherLoc]; //you need to this to actual copy the array not just the reference
+      cur.push(obj);
+      this.setState({ allUserWeatherLoc: cur });
+    }
+  };
+
+  getWeather = async data => {
+    const API_KEY = "640285b24dd4963e697ea5be67cf8165";
+    const split = data.weatherlocation.toLowerCase().split(/[,]+/); //split the string by " " or ,
+    const city = split[0];
+    const country = split[1];
+    const urls = [
+      `https://cors-anywhere.herokuapp.com/https://cors-anywhere.herokuapp.com/http://api.openweathermap.org/data/2.5/weather?q=${city},${country}&appid=${API_KEY}&units=imperial`,
+      `https://cors-anywhere.herokuapp.com/https://cors-anywhere.herokuapp.com/http://api.openweathermap.org/data/2.5/forecast?q=${city},${country}&appid=${API_KEY}&units=imperial`
+    ];
+    const promiseFetch = Promise.all(
+      urls.map(url => fetch(url).then(res => res.json()))
+    )
+      .then(results => {
+        return results;
+      })
+      .catch(err => {
+        return err;
+      });
+
+    return promiseFetch;
+  };
+
+  //fix
   componentDidUpdate(prevProps, prevState) {
-    if (prevProps.searchField !== this.props.searchField && this.props.searchField !== "") {
+    if (
+      prevProps.searchField !== this.props.searchField &&
+      this.props.searchField !== ""
+    ) {
       const split = this.props.searchField.toLowerCase().split(/[ ,]+/); //split the string by " " or ,
       if (split.length === 2) {
         const city = split[0];
         const country = split[1];
-        this.props.onRequestWeatherForecast("forecast", city, country);
-        this.props.onRequestWeather("weather", city, country);
+        this.props.onRequestWeatherAndForecast(city, country);
       }
 
       if (split.length === 3) {
         const city = split[0] + " " + split[1];
         const country = split[2];
-        this.props.onRequestWeatherForecast("forecast", city, country);
-        this.props.onRequestWeather("weather", city, country);
+        this.props.onRequestWeatherAndForecast(city, country);
       }
     }
-    if (
-      prevProps.weather.name !== this.props.weather.name &&
-      prevProps.weather.name !== undefined &&
-      this.props.weather.name !== undefined
-    ) {
-      // const curValue = (this.props.weather.name + "," + this.props.weather.sys.country).toLowerCase();
-      // const ws = this.state.savedWeather;
-      // console.log("look at ws", ws);
-      // // if(ws){
-      // //   this.addToWeatherLoc(ws.save);
-      // // }else{
-      // //   this.addToWeatherLoc();
-      // // }
-      this.addToWeatherLoc();
-      
+
+    if(this.props.data.length > 0){
+      if(prevProps.data.length === 0){
+        this.addToWeatherLoc();
+      }else{
+        if(prevProps.data[0].name !== this.props.data[0].name){
+          this.addToWeatherLoc();
+        }
+      }
+
     }
   }
-
-  addToWeatherLoc = (bol=false) => {
-    const curState = this.state.allUserWeatherLoc;
+  //have to fix
+  addToWeatherLoc = (bol = false) => {
+    const curState = [...this.state.allUserWeatherLoc];
     const obj = {
-      weather: this.props.weather,
-      forecast: this.props.weatherForecast,
+      weather: this.props.data[0],
+      forecast: this.props.data[1],
       save: bol
     };
-    const arr = [obj];
-    const nextState = curState.concat(arr);
-    this.setState({ allUserWeatherLoc: nextState });
+    curState.push(obj);
+    this.setState({ allUserWeatherLoc: curState });
   };
 
   saveWeatherProfile = event => {
@@ -157,7 +155,6 @@ class Profile extends Component {
     })
       .then(response => response.json())
       .then(saved => {
-        console.log(saved);
       })
       .catch(err => console.log(err));
   };
@@ -167,8 +164,6 @@ class Profile extends Component {
     const split = event.currentTarget.value.toLowerCase().split(/[-]+/); //split the string by " " or ,
     const index = split[0];
     const weatherLoc = split[1];
-    console.log("split", split);
-
     fetch("http://localhost:2500/profile/delete", {
       method: "put",
       headers: { "Content-Type": "application/json" },
@@ -187,9 +182,8 @@ class Profile extends Component {
       })
       .catch(err => console.log(err));
   };
-  render() {
-    console.log("Weather LOc", this.state.allUserWeatherLoc);
 
+  render() {
     const myWeatherLoc = this.state.allUserWeatherLoc.map((arr, i) => {
       return (
         <Grid key={i} item>
@@ -213,7 +207,7 @@ class Profile extends Component {
           direction="row-reverse"
           justify="space-around"
           alignItems="center"
-          spacing={2}
+          spacing={4}
         >
           {myWeatherLoc}
         </Grid>

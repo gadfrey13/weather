@@ -5,18 +5,36 @@ import RouterApp from "./containers/Router/Router";
 import * as serviceWorker from "./serviceWorker";
 import { Provider } from "react-redux";
 import { createStore, applyMiddleware, combineReducers } from "redux";
-import { searchWeather, requestWeather, requestWeatherForecast, loadUser, userLogIn  } from "../src/reducer/reducer";
-import {createLogger} from 'redux-logger';
-import thunkMiddleware from 'redux-thunk';
+import {
+  searchWeather,
+  requestWeather,
+  requestWeatherForecast,
+  loadUser,
+  userLogIn,
+  requestWeatherAndForecast
+} from "../src/reducer/reducer";
+import { createLogger } from "redux-logger";
+import thunkMiddleware from "redux-thunk";
 
 const logger = createLogger();
 
-const rootReducer = combineReducers({searchWeather,requestWeather, requestWeatherForecast, loadUser,userLogIn});
-const store = createStore(rootReducer, applyMiddleware(thunkMiddleware, logger));
+const rootReducer = combineReducers({
+  requestWeatherAndForecast,
+  searchWeather,
+  requestWeather,
+  requestWeatherForecast,
+  loadUser,
+  userLogIn,
+  
+});
+const store = createStore(
+  rootReducer,
+  applyMiddleware(thunkMiddleware, logger)
+);
 
 ReactDOM.render(
   <Provider store={store}>
-    <RouterApp/>
+    <RouterApp />
   </Provider>,
   document.getElementById("root")
 );

@@ -13,6 +13,7 @@ import { Link } from "react-router-dom";
 
 
 import './Signin.css';
+import { resetWeather } from '../../actions/actions';
 
 // function Copyright() {
 //   return (
@@ -90,6 +91,8 @@ const SignIn = (props) => {
         if(user !== "wrong credentials"){
           props.loadUserProfile(user);
           props.logIn(true);
+          // props.resetWeatherIn();
+          // props.resetWeatherForeCastIn();
           setWrongCredential(false);
           props.history.push("/profile"); 
         }else{
