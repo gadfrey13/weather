@@ -3,12 +3,8 @@ import WeatherContainer from "../Weather/WeatherContainer/WeatherContainer";
 import { connect } from "react-redux";
 import Grid from "@material-ui/core/Grid";
 import {
-  requestWeather,
-  requestWeatherForecast,
   requestWeatherAndForecast
 } from "../../actions/actions";
-import Loading from "../Loading/Loading";
-import { tsParenthesizedType } from "@babel/types";
 
 const mapStateToProps = state => {
   return {
@@ -43,7 +39,7 @@ class Profile extends Component {
   componentDidMount() {
     const { id } = this.props.user;
     console.log("this is profile componentdidmount");
-    fetch("http://localhost:2500/profile", {
+    fetch("https://calm-earth-15616.herokuapp.com/profile", {
       method: "post",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -118,8 +114,8 @@ class Profile extends Component {
         this.props.onRequestWeatherAndForecast(city, country);
       }
     }
-
-    if(this.props.data.length > 0){
+    console.log("Err data", this.props.data);
+    if(this.props.data.length > 0 && this.props.data[1].cod === "200" ){
       if(prevProps.data.length === 0){
         this.addToWeatherLoc();
       }else{
@@ -145,7 +141,7 @@ class Profile extends Component {
   saveWeatherProfile = event => {
     const weatherLoc = event.currentTarget.value.toLowerCase();
     const { id } = this.props.user;
-    fetch("http://localhost:2500/profile/save", {
+    fetch("https://calm-earth-15616.herokuapp.com/profile/save", {
       method: "post",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -164,7 +160,7 @@ class Profile extends Component {
     const split = event.currentTarget.value.toLowerCase().split(/[-]+/); //split the string by " " or ,
     const index = split[0];
     const weatherLoc = split[1];
-    fetch("http://localhost:2500/profile/delete", {
+    fetch("https://calm-earth-15616.herokuapp.com/profile/delete", {
       method: "put",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({

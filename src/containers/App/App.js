@@ -51,11 +51,12 @@ class App extends Component {
 
   render() {
     // const { weatherData, foreCastData } = this.state;
+   
     const {weather,weatherForecast,isPendingWeather,isPendingWeatherForecast, isLogin} = this.props;
     return (
       <div>
         <ErrorBoundary>
-          {!isPendingWeather && !isPendingWeatherForecast ? (
+          {((!isPendingWeather && !isPendingWeatherForecast) && weather.cod === 200 && weatherForecast.cod === "200") ? (
             <WeatherContainer
               weatherData={weather}
               foreCastData={weatherForecast.list}

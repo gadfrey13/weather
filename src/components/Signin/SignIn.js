@@ -10,23 +10,9 @@ import Typography from '@material-ui/core/Typography';
 import { makeStyles } from '@material-ui/core/styles';
 import Container from '@material-ui/core/Container';
 import { Link } from "react-router-dom";
-
-
 import './Signin.css';
-import { resetWeather } from '../../actions/actions';
 
-// function Copyright() {
-//   return (
-//     <Typography variant="body2" color="textSecondary" align="center">
-//       {'Copyright © '}
-//       <Link color="inherit" href="https://material-ui.com/">
-//         Your Website
-//       </Link>{' '}
-//       {new Date().getFullYear()}
-//       {'.'}
-//     </Typography>
-//   );
-// }
+
 
 const useStyles = makeStyles(theme => ({
   '@global': {
@@ -78,7 +64,7 @@ const SignIn = (props) => {
   }
 
   const onSubmitSignIn = () => { 
-    fetch('http://localhost:2500/signin', {
+    fetch('https://calm-earth-15616.herokuapp.com/signin', {
         method: 'post',
         headers: {'Content-Type': 'application/json'},
         body: JSON.stringify({
@@ -91,8 +77,6 @@ const SignIn = (props) => {
         if(user !== "wrong credentials"){
           props.loadUserProfile(user);
           props.logIn(true);
-          // props.resetWeatherIn();
-          // props.resetWeatherForeCastIn();
           setWrongCredential(false);
           props.history.push("/profile"); 
         }else{

@@ -12,20 +12,6 @@ import Container from "@material-ui/core/Container";
 import { Link } from "react-router-dom";
 
 
-function Copyright() {
-  return (
-    <Typography variant="body2" color="textSecondary" align="center">
-      {"Copyright © "}
-      <Link color="inherit" href="https://material-ui.com/">
-        Your Website
-      </Link>{" "}
-      {new Date().getFullYear()}
-      {"."}
-    </Typography>
-  );
-}
-
-
 
 const useStyles = makeStyles(theme => ({
   "@global": {
@@ -88,7 +74,7 @@ const Register = props => {
     setPassWordValid(passWord);
     setEmailValid(!email);
     if (firstName && lastName && passWord && email) {
-      fetch('http://localhost:2500/register', {
+      fetch('https://calm-earth-15616.herokuapp.com/register', {
         method: 'post',
         headers: {'Content-Type': 'application/json'},
         body: JSON.stringify({
@@ -217,7 +203,6 @@ const Register = props => {
         </form>
       </div>
       <Box mt={5}>
-        <Copyright />
       </Box>
     </Container>
   );

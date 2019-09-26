@@ -1,6 +1,5 @@
-import React, { Component } from "react";
+import React from "react";
 import { Route, Redirect } from "react-router-dom";
-import auth from "../../utility/auth";
 /*
 param: component
 param: the rest of the props
